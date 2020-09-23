@@ -347,6 +347,11 @@
             }
             [self.localStreams removeObjectForKey:streamId];
         }
+        AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+                [audioSession setActive:FALSE error:nil];
+                [audioSession setCategory:AVAudioSessionCategoryPlayback
+                              withOptions:0
+                                    error:nil];
         result(nil);
     } else if ([@"mediaStreamTrackSetEnable" isEqualToString:call.method]){
         NSDictionary* argsMap = call.arguments;
