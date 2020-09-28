@@ -56,7 +56,7 @@ class RTCVideoRenderer extends ValueNotifier<RTCVideoValue> {
   int _textureId;
   MediaStream _srcObject;
   StreamSubscription<dynamic> _eventSubscription;
-  bool _disposed;
+  bool _disposed = false;
 
   Future<void> initialize() async {
     final response = await _channel
@@ -90,8 +90,7 @@ class RTCVideoRenderer extends ValueNotifier<RTCVideoValue> {
     });
   }
 
-  @override
-  Future<void> dispose() async {
+  Future<Null> dispose() async {
     super.dispose();
     // await _eventSubscription?.cancel();
     // await _channel.invokeMethod(
