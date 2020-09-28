@@ -56,11 +56,16 @@ class RTCVideoRenderer extends ValueNotifier<RTCVideoValue> {
   int _textureId;
   MediaStream _srcObject;
   StreamSubscription<dynamic> _eventSubscription;
+  bool _disposed;
 
   Future<void> initialize() async {
     final response = await _channel
         .invokeMethod<Map<dynamic, dynamic>>('createVideoRenderer', {});
     _textureId = response['textureId'];
+    if (_disposed) {
+      dispose();
+      return;
+    }
     _eventSubscription = EventChannel('FlutterWebRTC/Texture$textureId')
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
@@ -88,11 +93,20 @@ class RTCVideoRenderer extends ValueNotifier<RTCVideoValue> {
   @override
   Future<void> dispose() async {
     super.dispose();
-    await _eventSubscription?.cancel();
-    await _channel.invokeMethod(
-      'videoRendererDispose',
-      <String, dynamic>{'textureId': _textureId},
-    );
+    // await _eventSubscription?.cancel();
+    // await _channel.invokeMethod(
+    //   'videoRendererDispose',
+    //   <String, dynamic>{'textureId': _textureId},
+    // );
+    _disposed = true;
+    if (_textureId != null) {
+      await _eventSubscription?.cancel();
+      await _channel.invokeMethod(
+        'videoRendererDispose',
+        <String, dynamic>{'textureId': _textureId},
+      );
+      _textureId = null;
+    }
   }
 
   void eventListener(dynamic event) {
